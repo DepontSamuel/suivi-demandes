@@ -1,0 +1,26 @@
+<!doctype html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}Suivi des demandes{% endblock %}</title>
+</head>
+<body>
+  <a href="#contenu">Aller au contenu</a>
+  <header>
+    {% if user.is_authenticated %}
+    <nav aria-label="Navigation principale">
+      <a href="{% url 'tickets:liste' %}">Demandes</a>
+      <a href="{% url 'tickets:creer' %}">Nouvelle demande</a>
+      <form method="post" action="{% url 'logout' %}">
+        {% csrf_token %}
+        <button type="submit">Se déconnecter ({{ user.username }})</button>
+      </form>
+    </nav>
+    {% endif %}
+  </header>
+  <main id="contenu">
+    {% block content %}{% endblock %}
+  </main>
+</body>
+</html>

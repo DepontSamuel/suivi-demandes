@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Demandes{% endblock %}
+{% block content %}
+<h1>Demandes</h1>
+<table>
+  <caption>Liste des demandes</caption>
+  <thead>
+    <tr>
+      <th scope="col">Titre</th>
+      <th scope="col">Statut</th>
+      <th scope="col">Priorité</th>
+      <th scope="col">Demandeur</th>
+      <th scope="col">Créée le</th>
+    </tr>
+  </thead>
+  <tbody>
+    {% for ticket in ticket_list %}
+    <tr>
+      <td><a href="{% url 'tickets:detail' ticket.pk %}">{{ ticket.titre }}</a></td>
+      <td>{{ ticket.get_statut_display }}</td>
+      <td>{{ ticket.get_priorite_display }}</td>
+      <td>{{ ticket.demandeur }}</td>
+      <td>{{ ticket.cree_le|date:"d/m/Y H:i" }}</td>
+    </tr>
+    {% empty %}
+    <tr><td colspan="5">Aucune demande.</td></tr>
+    {% endfor %}
+  </tbody>
+</table>
+{% if is_paginated %}
+<nav aria-label="Pagination">
+  {% if page_obj.has_previous %}<a href="?page={{ page_obj.previous_page_number }}">Précédent</a>{% endif %}
+  Page {{ page_obj.number }} sur {{ page_obj.paginator.num_pages }}
+  {% if page_obj.has_next %}<a href="?page={{ page_obj.next_page_number }}">Suivant</a>{% endif %}
+</nav>
+{% endif %}
+{% endblock %}

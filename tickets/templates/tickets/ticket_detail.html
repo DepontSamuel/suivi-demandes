@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}{{ ticket.titre }}{% endblock %}
+{% block content %}
+<h1>{{ ticket.titre }}</h1>
+<dl>
+  <dt>Statut</dt><dd>{{ ticket.get_statut_display }}</dd>
+  <dt>Priorité</dt><dd>{{ ticket.get_priorite_display }}</dd>
+  <dt>Demandeur</dt><dd>{{ ticket.demandeur }}</dd>
+  <dt>Assigné à</dt><dd>{{ ticket.assigne_a|default:"Non assigné" }}</dd>
+  <dt>Créée le</dt><dd>{{ ticket.cree_le|date:"d/m/Y H:i" }}</dd>
+</dl>
+<h2>Description</h2>
+<p>{{ ticket.description|linebreaksbr }}</p>
+<p><a href="{% url 'tickets:liste' %}">Retour à la liste</a></p>
+{% endblock %}
