@@ -1,8 +1,16 @@
 from django.conf import settings
 from django.db import models
 
+class TicketQuerySet(models.QuerySet):
+    def visibles_par(self, user):
+        """Tickets qu'un utilisateur a le droit de voir."""
+        if user.is_staff:
+            return self
+        return self.filter(demandeur=user)
 
 class Ticket(models.Model):
+    objects = TicketQuerySet.as_manager()
+
     class Statut(models.TextChoices):
         OUVERT = "ouvert", "Ouvert"
         EN_COURS = "en_cours", "En cours"
