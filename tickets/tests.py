@@ -10,28 +10,23 @@ User = get_user_model()
 class TicketModelTests(TestCase):
     def test_valeurs_par_defaut(self):
         user = User.objects.create_user("agent", password="mdp-test-123")
-        ticket = Ticket.objects.create(
-            titre="Imprimante", description="En panne", demandeur=user
-        )
+        ticket = Ticket.objects.create(titre="Imprimante", description="En panne", demandeur=user)
         self.assertEqual(ticket.statut, Ticket.Statut.OUVERT)
         self.assertEqual(ticket.priorite, Ticket.Priorite.NORMALE)
         self.assertIsNone(ticket.assigne_a)
 
     def test_representation_texte(self):
         user = User.objects.create_user("agent", password="mdp-test-123")
-        ticket = Ticket.objects.create(
-            titre="Imprimante", description="En panne", demandeur=user
-        )
+        ticket = Ticket.objects.create(titre="Imprimante", description="En panne", demandeur=user)
         self.assertEqual(str(ticket), f"#{ticket.pk} Imprimante")
+
 
 class TicketViewTests(TestCase):
     @classmethod
     def setUpTestData(cls):
         cls.agent1 = User.objects.create_user("agent1", password="mdp-test-123")
         cls.agent2 = User.objects.create_user("agent2", password="mdp-test-123")
-        cls.support = User.objects.create_user(
-            "support", password="mdp-test-123", is_staff=True
-        )
+        cls.support = User.objects.create_user("support", password="mdp-test-123", is_staff=True)
         cls.ticket1 = Ticket.objects.create(
             titre="Ticket agent1", description="Texte", demandeur=cls.agent1
         )

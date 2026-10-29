@@ -1,0 +1,56 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: suivi
+          POSTGRES_USER: suivi
+          POSTGRES_PASSWORD: ci-password
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U suivi -d suivi"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      POSTGRES_DB: suivi
+      POSTGRES_USER: suivi
+      POSTGRES_PASSWORD: ci-password
+      POSTGRES_HOST: localhost
+      POSTGRES_PORT: "5432"
+      DJANGO_SECRET_KEY: ci-only-secret-key
+      DJANGO_DEBUG: "0"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+
+      - name: Installer les dépendances
+        run: pip install -r requirements-dev.txt
+
+      - name: Lint
+        run: |
+          ruff check .
+          ruff format --check .
+
+      - name: Tests
+        run: python manage.py test
+
+      - name: Analyse des dépendances
+        run: pip-audit -r requirements.txt

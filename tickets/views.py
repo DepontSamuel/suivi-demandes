@@ -8,7 +8,7 @@ from .models import Ticket
 
 class TicketQuerysetMixin(LoginRequiredMixin):
     """Un agent ne voit que ses demandes ; le personnel du service voit tout."""
-    
+
     def get_queryset(self):
         return Ticket.objects.select_related("demandeur", "assigne_a").visibles_par(
             self.request.user
