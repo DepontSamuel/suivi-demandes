@@ -54,3 +54,6 @@ jobs:
 
       - name: Analyse des dépendances
         run: pip-audit -r requirements.txt
+        
+      - name: Construire l'image Docker
+        run: docker build -t suivi-demandes .

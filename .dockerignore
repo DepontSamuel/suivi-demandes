@@ -1,0 +1,10 @@
+.venv
+.git
+.github
+__pycache__
+*.pyc
+.env
+.ruff_cache
+.coverage
+staticfiles
+db.sqlite3
