@@ -89,3 +89,53 @@ class TicketViewTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertIn("titre", response.context["form"].errors)
         self.assertEqual(Ticket.objects.count(), nb_avant)
+
+    def test_modification_redirige_si_anonyme(self):
+        url = reverse("tickets:modifier", args=[self.ticket1.pk])
+        response = self.client.get(url)
+        self.assertRedirects(response, f"{reverse('login')}?next={url}")
+
+    def test_agent_ne_peut_pas_ouvrir_le_formulaire_de_modification(self):
+        self.client.force_login(self.agent1)
+        response = self.client.get(reverse("tickets:modifier", args=[self.ticket1.pk]))
+        self.assertEqual(response.status_code, 403)
+
+    def test_agent_ne_peut_pas_modifier_son_propre_ticket(self):
+        self.client.force_login(self.agent1)
+        response = self.client.post(
+            reverse("tickets:modifier", args=[self.ticket1.pk]),
+            {"statut": "resolu", "assigne_a": self.support.pk},
+        )
+        self.assertEqual(response.status_code, 403)
+        self.ticket1.refresh_from_db()
+        self.assertEqual(self.ticket1.statut, Ticket.Statut.OUVERT)
+        self.assertIsNone(self.ticket1.assigne_a)
+
+    def test_personnel_modifie_statut_et_affectation(self):
+        self.client.force_login(self.support)
+        response = self.client.post(
+            reverse("tickets:modifier", args=[self.ticket1.pk]),
+            {"statut": "en_cours", "assigne_a": self.support.pk},
+        )
+        self.assertRedirects(response, reverse("tickets:detail", args=[self.ticket1.pk]))
+        self.ticket1.refresh_from_db()
+        self.assertEqual(self.ticket1.statut, Ticket.Statut.EN_COURS)
+        self.assertEqual(self.ticket1.assigne_a, self.support)
+
+    def test_affectation_a_un_non_personnel_est_refusee(self):
+        self.client.force_login(self.support)
+        response = self.client.post(
+            reverse("tickets:modifier", args=[self.ticket1.pk]),
+            {"statut": "en_cours", "assigne_a": self.agent2.pk},
+        )
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("assigne_a", response.context["form"].errors)
+        self.ticket1.refresh_from_db()
+        self.assertEqual(self.ticket1.statut, Ticket.Statut.OUVERT)
+
+    def test_lien_de_modification_visible_seulement_pour_le_personnel(self):
+        url = reverse("tickets:detail", args=[self.ticket1.pk])
+        self.client.force_login(self.agent1)
+        self.assertNotContains(self.client.get(url), "Modifier le statut")
+        self.client.force_login(self.support)
+        self.assertContains(self.client.get(url), "Modifier le statut")

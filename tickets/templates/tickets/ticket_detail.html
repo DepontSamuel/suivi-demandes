@@ -12,4 +12,7 @@
 <h2>Description</h2>
 <p>{{ ticket.description|linebreaksbr }}</p>
 <p><a href="{% url 'tickets:liste' %}">Retour à la liste</a></p>
+{% if user.is_staff %}
+<p><a href="{% url 'tickets:modifier' ticket.pk %}">Modifier le statut et l'affectation</a></p>
+{% endif %}
 {% endblock %}
