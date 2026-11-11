@@ -1,0 +1,11 @@
+{% extends "base.html" %}
+{% block title %}Modifier la demande{% endblock %}
+{% block content %}
+<h1>Modifier la demande « {{ ticket.titre }} »</h1>
+<form method="post">
+  {% csrf_token %}
+  {{ form.as_div }}
+  <button type="submit">Enregistrer</button>
+</form>
+<p><a href="{% url 'tickets:detail' ticket.pk %}">Annuler</a></p>
+{% endblock %}
